@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('static', filename='styles.css') }}"/>
+</head>
+<body>
+    <div>
+        <header>
+            <h1>Game Categories</h1>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li><strong>{{ message }}</strong></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            {% endwith %}
+
+            <a href = '{{url_for('newCategory') }}'>
+                Create New Game Category</a>
+        </header>
+        <div>
+            <section>
+                    {% for category in categories %}
+                    <div>
+                        <h3><a href='{{url_for('categoryGames', category_id = category.id) }}'>{{category.name}}</a></br></h3>
+                        <a href='{{url_for('editCategory', category_id = category.id) }}'>Edit</a></br>
+                        <a href = '{{url_for('deleteCategory', category_id = category.id) }}'>Delete</a>
+                        <hr>
+                    </div>
+                    {% endfor %}
+            </section>
+        </div>
+    </div>
+    
+</body>
+</html>

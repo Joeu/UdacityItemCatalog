@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Edit Menu Item</h1>
+    <form action="{{url_for('editGame',category_id = category_id, game_id = game_id)}}" method="POST">
+        <p>Name:</p><input type="text" placeholder="{{game.name}}" size="30" name="name">
+        <input type="submit" value="Edit">
+    </form>
+    <a href="{{url_for('categoryGames', category_id = category_id)}}">Cancel</a>
+</body>
+</html>
