@@ -27,12 +27,12 @@ session.add(category1)
 session.commit()
 
 
-game1 = Game(name = "Counter Strike Global Offensive", description = "Strategy FPS Game", price = "$2.99", category = category1)
+game1 = Game(name = "Counter Strike Global Offensive", description = "Counter-Strike (CS) is a series of multiplayer first-person shooter video games, in which teams of terrorists battle to perpetrate an act of terror (bombing, hostage-taking) and counter-terrorists try to prevent it (bomb defusal, hostage rescue).", category = category1)
 
 session.add(game1)
 session.commit()
 
-game2 = Game(name = "Battlefield 1", description = "First World War FPS Game", price = "$5.50", category = category1)
+game2 = Game(name = "Battlefield 1", description = "Battlefield is a series of first-person shooter video games that started out on Microsoft Windows and OS X with Battlefield 1942, which was released in 2002. The series is developed by Swedish company EA DICE and is published by American company Electronic Arts.", category = category1)
 
 session.add(game2)
 session.commit()
@@ -45,25 +45,25 @@ session.add(category2)
 session.commit()
 
 
-game1 = Game(name = "DOTA", description = "Strategy Game", price = "$7.99", category = category2)
+game1 = Game(name = "DOTA", description = "Defense of the Ancients (DotA) is a multiplayer online battle arena (MOBA) mod for the video game Warcraft III: Reign of Chaos and its expansion, Warcraft III: The Frozen Throne.", category = category2)
 
 session.add(game1)
 session.commit()
 
 
 #2D Platform Category
-category1 = Category(name = "2D Platform")
+category3 = Category(name = "2D Platform")
 
-session.add(category1)
+session.add(category3)
 session.commit()
 
 
-game1 = Game(name = "Hollow Knight", description = "2D platform game.", price = "", category = category1)
+game1 = Game(name = "Hollow Knight", description = "Hollow Knight is a Metroidvania video game developed and published by Australian studio Team Cherry.", category = category3)
 
 session.add(game1)
 session.commit()
 
-game2 = Game(name = "Cuphead", description = "2D platform game.", price = "", category = category1)
+game2 = Game(name = "Cuphead", description = "Cuphead is a run and gun indie video game developed and published by StudioMDHR.", category = category3)
 
 session.add(game2)
 session.commit()

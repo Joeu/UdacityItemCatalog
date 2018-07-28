@@ -78,6 +78,12 @@ def deleteCategory(category_id):
 
 
 # Game Routes
+@app.route("/category/<int:category_id>/<int:game_id>/", methods=["GET"])
+def gameDescription(category_id, game_id):
+    category = session.query(Category).filter_by(id = category_id).one()
+    game = session.query(Game).filter_by(id = game_id).one()
+    return render_template('gameDescription.html', category_id = category_id, game_id = game_id, game = game, category = category)
+
 @app.route('/category/<int:category_id>/new', methods=['GET','POST'])
 def newGame(category_id):
     if request.method == 'POST':
@@ -96,6 +102,8 @@ def editGame(category_id, game_id):
     if request.method == 'POST':
         if request.form['name']:
             game.name = request.form['name']
+        if request.form['description']:
+            game.description = request.form['description']
         session.add(game)
         session.commit()
         flash(game.name + " edited!")
@@ -129,7 +137,7 @@ def CategoryGamesJSON(category_id):
     items = session.query(Game).filter_by(category_id = category_id).all()
     return jsonify(Games = [i.serialize for i in items])
 
-@app.route('/restaurants/<int:category_id>/games/<int:game_id>/JSON')
+@app.route('/categories/<int:category_id>/games/<int:game_id>/JSON')
 def GamesJSON(category_id, game_id):
     game = session.query(Game).filter_by(id = game_id).one()
     return jsonify(Game = game.serialize)
