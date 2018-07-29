@@ -137,8 +137,8 @@ def gdisconnect():
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         session = DBSession()
-        categories = session.query(Category).all()
-        return render_template('music/publicCategories.html', categories = categories)
+        # categories = session.query(Category).all()
+        return render_template('publicCategories.html')
     else:
         response = make_response(
             json.dumps('Failed to revoke token for given user.'), 400)
