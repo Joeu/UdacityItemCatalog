@@ -279,7 +279,7 @@ def editGame(category_id, game_id):
         flash(game.name + " edited!")
         return redirect(url_for("categories", category_id = category_id))
     else:
-        return render_template("editGame.html", category_id = category_id, game_id = game_id, game = game)
+        return render_template("games/protected/editGame.html", category_id = category_id, game_id = game_id, game = game)
 
 # Task 3: Create a route for deleteGame function here
 @app.route("/category/<int:category_id>/<int:game_id>/delete/", methods=["GET","POST"])

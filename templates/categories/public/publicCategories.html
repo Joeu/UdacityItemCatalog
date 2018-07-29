@@ -1,20 +1,28 @@
+<!DOCTYPE html>
 <html>
-    <head>
-        <link rel=stylesheet type=text/css href="{{ url_for('static', filename='main.css') }}">
-    </head>
-    <body>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Time to Play!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
 
-        <div class="login">
-                <a href="{{url_for('showLogin')}}">Click Here to Log in </a>
+    <header>
+        <div class="header_inner">
+            <h1>Game Categories</h1>
+            <a href="{{url_for('showLogin')}}">Click Here to Log in </a>
         </div>
-        <h1>Game Categories</h1>
-        <div class = "center"> 
+    </header>
+
+    <main>
+        <div class="main_container"> 
             {% for category in categories %}
-            <a href = "{{url_for('categoryGames', category_id = category.id)}}">
-                <span ><p>{{category.name}}</p></span>
-            </a>
-            <br>
+            <h3><a href = "{{url_for('categoryGames', category_id = category.id)}}">{{category.name}}</h3></a></br>
             {% endfor %}
         </div>
-        </body>
+    </main>
+
+</body>
 </html>
