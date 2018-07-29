@@ -1,0 +1,21 @@
+<html>
+
+<body>
+    <head>
+            <link rel=stylesheet type=text/css href="{{ url_for('static', filename='main.css') }}">
+    </head>
+    <div class="login">
+            <a href="{{url_for('showLogin')}}">Click Here to Log in </a>
+    </div>
+        <h1>{{category.name}}</h1>
+    <div class = "center"> 
+        {% for game in games %}
+            <div>
+                <h3><a href='{{url_for('gameDescription', category_id = category.id, game_id = game.id) }}'>{{game.name}}</a></br></h3>
+            </div>
+        {% endfor %}
+    </div>
+    <a href="{{url_for('categories')}}">Game Categories</a>
+</body>
+
+</html>

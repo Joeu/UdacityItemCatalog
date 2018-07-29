@@ -20,8 +20,12 @@
                 </ul>
                 {% endif %}
             {% endwith %}
+            
+            <a href = '{{url_for('gdisconnect')}}'>
+                Log Out </a>
 
-            <a href = '{{url_for('newCategory') }}'>
+            <br>
+            <a href = '{{url_for('newCategory')}}'>
                 Create New Game Category</a>
         </header>
         <div>

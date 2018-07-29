@@ -107,7 +107,6 @@ def gconnect():
     output += login_session['picture']
     output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" %login_session['username'])
-    print "done!"
     return output
 
 # Disconnecting google account
@@ -137,8 +136,8 @@ def gdisconnect():
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         session = DBSession()
-        # categories = session.query(Category).all()
-        return render_template('publicCategories.html')
+        categories = session.query(Category).all()
+        return render_template('publicCategories.html', categories = categories)
     else:
         response = make_response(
             json.dumps('Failed to revoke token for given user.'), 400)
@@ -169,6 +168,8 @@ def createUser(login_session):
 
 
 # Category Routes
+
+# Show Categories
 @app.route("/")
 @app.route("/categories/")
 def categories():
@@ -181,8 +182,13 @@ def categories():
 @app.route("/categories/<int:category_id>")
 def categoryGames(category_id):
     category = session.query(Category).filter_by(id = category_id).one()
+    creator = getUserInfo(category.user_id)
     games = session.query(Game).filter_by(category_id = category.id)
-    return render_template("categoryGames.html", category = category, games = games)
+    # protecting route
+    if "username" not in login_session or creator.id != login_session["user_id"]:
+        return render_template("publicGames.html", games = games, category = category, creator = creator)
+    else:
+        return render_template("categoryGames.html", category = category, games = games, creator = creator)
 
 @app.route("/category/new", methods=["GET","POST"])
 def newCategory():
@@ -199,7 +205,11 @@ def newCategory():
 
 @app.route("/category/<int:category_id>/edit/", methods=["GET","POST"])
 def editCategory(category_id):
+    if "username" not in login_session:
+        return redirect("/login")
     category = session.query(Category).filter_by(id = category_id).one()
+    if category.user_id != login_session["user_id"]:
+        return buildUnauthorizedAlert("edit", "category")
     if request.method == "POST":
         if request.form["name"]:
             category.name = request.form["name"]
@@ -212,7 +222,11 @@ def editCategory(category_id):
 
 @app.route("/category/<int:category_id>/delete/", methods=["GET","POST"])
 def deleteCategory(category_id):
+    if "username" not in login_session:
+        return redirect("/login")
     category = session.query(Category).filter_by(id = category_id).one()
+    if category.user_id != login_session["user_id"]:
+        return buildUnauthorizedAlert("delete", "category")
     if request.method == "POST":
         session.delete(category)
         session.commit()
@@ -225,12 +239,19 @@ def deleteCategory(category_id):
 # Game Routes
 @app.route("/category/<int:category_id>/<int:game_id>/", methods=["GET"])
 def gameDescription(category_id, game_id):
+    if "username" not in login_session:
+        return redirect("/login")
     category = session.query(Category).filter_by(id = category_id).one()
     game = session.query(Game).filter_by(id = game_id).one()
     return render_template("gameDescription.html", category_id = category_id, game_id = game_id, game = game, category = category)
 
 @app.route("/category/<int:category_id>/new", methods=["GET","POST"])
 def newGame(category_id):
+    if "username" not in login_session:
+        return redirect("/login")
+    category = session.query(Category).filter_by(id = category_id).one()
+    if category.user_id != login_session["user_id"]:
+        return buildUnauthorizedAlert("create", "game")
     if request.method == "POST":
         newGame = Game(name = request.form["name"], category_id = category_id)
         session.add(newGame)
@@ -243,7 +264,11 @@ def newGame(category_id):
 # Task 2: Create route for editGame function here
 @app.route("/category/<int:category_id>/<int:game_id>/edit/", methods=["GET","POST"])
 def editGame(category_id, game_id):
+    if "username" not in login_session:
+        return redirect("/login")
     game = session.query(Game).filter_by(id = game_id).one()
+    if game.user_id != login_session["user_id"]:
+        return buildUnauthorizedAlert("edit", "game")
     if request.method == "POST":
         if request.form["name"]:
             game.name = request.form["name"]
@@ -259,7 +284,11 @@ def editGame(category_id, game_id):
 # Task 3: Create a route for deleteGame function here
 @app.route("/category/<int:category_id>/<int:game_id>/delete/", methods=["GET","POST"])
 def deleteGame(category_id, game_id):
+    if "username" not in login_session:
+        return redirect("/login")
     game = session.query(Game).filter_by(id = game_id).one()
+    if game.user_id != login_session["user_id"]:
+        return buildUnauthorizedAlert("delete", "game")
     if request.method == "POST":
         session.delete(game)
         session.commit()
@@ -268,11 +297,6 @@ def deleteGame(category_id, game_id):
     else:
         # return render_template("deleteGame.html", category_id = category_id, game_id = game_id, game = game)
         return render_template("deleteGame.html", category_id = category_id, game_id = game_id, game = game)
-
-# Login Routes
-
-
-
 
 
 #API endpoint (GET)
@@ -286,6 +310,15 @@ def CategoryGamesJSON(category_id):
 def GamesJSON(category_id, game_id):
     game = session.query(Game).filter_by(id = game_id).one()
     return jsonify(Game = game.serialize)
+
+
+# Utils
+def buildUnauthorizedAlert(action, itemType):
+    unauthorizedAlert = "<script>"
+    unauthorizedAlert += "function unauthorizedFunc() {alert('You are not authorized to %s this %s.');}" % (action, itemType)
+    unauthorizedAlert += "</script>"
+    unauthorizedAlert += "<body onload='unauthorizedFunc()''>" 
+    return unauthorizedAlert
 
 
 # Running app
