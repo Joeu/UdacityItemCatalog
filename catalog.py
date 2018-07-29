@@ -137,7 +137,7 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         session = DBSession()
         categories = session.query(Category).all()
-        return render_template('publicCategories.html', categories = categories)
+        return render_template('categories/public/publicCategories.html', categories = categories)
     else:
         response = make_response(
             json.dumps('Failed to revoke token for given user.'), 400)
@@ -175,9 +175,9 @@ def createUser(login_session):
 def categories():
     categories = session.query(Category).all()
     if "username" not in login_session:
-        return render_template("publicCategories.html", categories = categories)
+        return render_template("categories/public/publicCategories.html", categories = categories)
     else:
-        return render_template("categories.html", categories=categories)
+        return render_template("categories/protected/categories.html", categories=categories)
 
 @app.route("/categories/<int:category_id>")
 def categoryGames(category_id):
@@ -186,9 +186,9 @@ def categoryGames(category_id):
     games = session.query(Game).filter_by(category_id = category.id)
     # protecting route
     if "username" not in login_session or creator.id != login_session["user_id"]:
-        return render_template("publicGames.html", games = games, category = category, creator = creator)
+        return render_template("games/public/publicGames.html", games = games, category = category, creator = creator)
     else:
-        return render_template("categoryGames.html", category = category, games = games, creator = creator)
+        return render_template("games/protected/categoryGames.html", category = category, games = games, creator = creator)
 
 @app.route("/category/new", methods=["GET","POST"])
 def newCategory():
@@ -201,7 +201,7 @@ def newCategory():
         flash("New game category created!")
         return redirect(url_for("categories"))
     else:
-        return render_template("newCategory.html")
+        return render_template("categories/protected/newCategory.html")
 
 @app.route("/category/<int:category_id>/edit/", methods=["GET","POST"])
 def editCategory(category_id):
@@ -218,7 +218,7 @@ def editCategory(category_id):
         flash(category.name + " edited!")
         return redirect(url_for("categories"))
     else:
-        return render_template("editCategory.html", category = category)
+        return render_template("categories/protected/editCategory.html", category = category)
 
 @app.route("/category/<int:category_id>/delete/", methods=["GET","POST"])
 def deleteCategory(category_id):
@@ -233,7 +233,7 @@ def deleteCategory(category_id):
         flash(category.name + " deleted!")
         return redirect(url_for("categories"))
     else:
-        return render_template("deleteCategory.html", category = category)
+        return render_template("categories/protected/deleteCategory.html", category = category)
 
 
 # Game Routes
@@ -243,7 +243,7 @@ def gameDescription(category_id, game_id):
         return redirect("/login")
     category = session.query(Category).filter_by(id = category_id).one()
     game = session.query(Game).filter_by(id = game_id).one()
-    return render_template("gameDescription.html", category_id = category_id, game_id = game_id, game = game, category = category)
+    return render_template("games/protected/gameDescription.html", category_id = category_id, game_id = game_id, game = game, category = category)
 
 @app.route("/category/<int:category_id>/new", methods=["GET","POST"])
 def newGame(category_id):
@@ -257,9 +257,9 @@ def newGame(category_id):
         session.add(newGame)
         session.commit()
         flash("New game created!")
-        return redirect(url_for("categories", category_id = category_id))
+        return redirect(url_for("categories/protected/categories", category_id = category_id))
     else:
-        return render_template("newGame.html", category_id = category_id)
+        return render_template("games/protected/newGame.html", category_id = category_id)
 
 # Task 2: Create route for editGame function here
 @app.route("/category/<int:category_id>/<int:game_id>/edit/", methods=["GET","POST"])
@@ -295,8 +295,7 @@ def deleteGame(category_id, game_id):
         flash(game.name + " deleted!")
         return redirect(url_for("categories", category_id = category_id))
     else:
-        # return render_template("deleteGame.html", category_id = category_id, game_id = game_id, game = game)
-        return render_template("deleteGame.html", category_id = category_id, game_id = game_id, game = game)
+        return render_template("games/protected/deleteGame.html", category_id = category_id, game_id = game_id, game = game)
 
 
 #API endpoint (GET)
