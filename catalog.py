@@ -301,9 +301,8 @@ def deleteGame(category_id, game_id):
 #API endpoint (GET)
 @app.route("/categories/<int:category_id>/games/JSON")
 def CategoryGamesJSON(category_id):
-    # restaurant = session.query(Restaurant).filter_by(id = category_id).one()
-    items = session.query(Game).filter_by(category_id = category_id).all()
-    return jsonify(Games = [i.serialize for i in items])
+    games = session.query(Game).filter_by(category_id = category_id).all()
+    return jsonify(Games = [g.serialize for g in games])
 
 @app.route("/categories/<int:category_id>/games/<int:game_id>/JSON")
 def GamesJSON(category_id, game_id):
