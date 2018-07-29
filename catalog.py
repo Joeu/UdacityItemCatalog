@@ -69,18 +69,18 @@ def gconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     if result['issued_to'] != CLIENT_ID:
-        response.make_response(json.dumps("Token's client ID doesn't match  app's"), 401)
+        response.make_response(json.dumps("Token's client ID doesn't match app's"), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    stored_credentials = login_session.get('credentials')
+    stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
-    if stored_credentials is not None and gulps_id == stored_gplus_id:
+    if stored_access_token is not None and gulps_id == stored_gplus_id:
         response = make_response(json.dumps("Current user is already connected."), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    login_session['credentials'] = credentials
+    login_session['access_token'] = credentials.access_token
     login_session['gplus_id'] = gulps_id
 
     #user info
@@ -113,17 +113,17 @@ def gconnect():
 # Disconnecting google account
 @app.route('/gdisconnect')
 def gdisconnect():
-    credentials = login_session.get('credentials')
-    if credentials is None:
+    access_token = login_session.get('access_token')
+    oauth2uri = 'https://accounts.google.com/o/oauth2/revoke?token=%s'
+    if access_token is None:
         print 'Access Token is None'
         response = make_response(json.dumps('Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    print 'In gdisconnect access token is %s', credentials.access_token
+    print 'In gdisconnect access token is %s', access_token
     print 'User name is: '
     print login_session['username']
-    access_token = credentials.access_token
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' %access_token
+    url = oauth2uri % login_session['access_token']
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     print 'result is '
@@ -136,9 +136,12 @@ def gdisconnect():
         del login_session['picture']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
-        return response
+        session = DBSession()
+        categories = session.query(Category).all()
+        return render_template('music/publicCategories.html', categories = categories)
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user.'), 400)
+        response = make_response(
+            json.dumps('Failed to revoke token for given user.'), 400)
         response.headers['Content-Type'] = 'application/json'
     return response
 
