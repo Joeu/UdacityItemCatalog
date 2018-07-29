@@ -36,6 +36,7 @@ def showLogin():
     # Rendering template login
     return render_template("login.html", STATE = state)
 
+# Connecting to google account
 @app.route('/gconnect', methods = ['POST'])
 def gconnect():
     if request.args.get('state') != login_session['state']:
@@ -109,6 +110,39 @@ def gconnect():
     print "done!"
     return output
 
+# Disconnecting google account
+@app.route('/gdisconnect')
+def gdisconnect():
+    credentials = login_session.get('credentials')
+    if credentials is None:
+        print 'Access Token is None'
+        response = make_response(json.dumps('Current user not connected.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    print 'In gdisconnect access token is %s', credentials.access_token
+    print 'User name is: '
+    print login_session['username']
+    access_token = credentials.access_token
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' %access_token
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[0]
+    print 'result is '
+    print result
+    if result['status'] == '200':
+        del login_session['access_token']
+        del login_session['gplus_id']
+        del login_session['username']
+        del login_session['email']
+        del login_session['picture']
+        response = make_response(json.dumps('Successfully disconnected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    else:
+        response = make_response(json.dumps('Failed to revoke token for given user.'), 400)
+        response.headers['Content-Type'] = 'application/json'
+    return response
+
+
 def getUserId(email):
     try:
         user = session.query(User).filter_by(email = email).one()
@@ -136,7 +170,10 @@ def createUser(login_session):
 @app.route("/categories/")
 def categories():
     categories = session.query(Category).all()
-    return render_template("categories.html", categories=categories)
+    if "username" not in login_session:
+        return render_template("publicCategories.html", categories = categories)
+    else:
+        return render_template("categories.html", categories=categories)
 
 @app.route("/categories/<int:category_id>")
 def categoryGames(category_id):
@@ -146,8 +183,10 @@ def categoryGames(category_id):
 
 @app.route("/category/new", methods=["GET","POST"])
 def newCategory():
+    if "username" not in login_session:
+        return redirect("/login")
     if request.method == "POST":
-        newCategory = Category(name = request.form["name"])
+        newCategory = Category(name = request.form["name"], user_id=login_session["user_id"])
         session.add(newCategory)
         session.commit()
         flash("New game category created!")
